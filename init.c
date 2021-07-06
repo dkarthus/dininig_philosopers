@@ -30,7 +30,8 @@ static void ft_init_forks(t_inst *inst)
 	unsigned int	i;
 
 	i = 0;
-	inst->fork = malloc(sizeof(pthread_mutex_t) * inst->philo_amt);
+	inst->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) *
+			inst->philo_amt);
 	if (!inst->fork)
 		ft_exit("Malloc ERR in ft_init_fork!", NULL);
 	while (i < inst->philo_amt)
@@ -47,14 +48,14 @@ static void ft_init_forks(t_inst *inst)
 static void	ft_init_philosophers(t_inst *inst)
 {
 	unsigned int	i;
-
 	i = 0;
-	inst->philo = malloc(sizeof(t_philo) * inst->philo_amt);
+	inst->philo = (t_philo *)malloc(sizeof(t_philo) * inst->philo_amt);
 	if (!inst->philo)
 		ft_exit("Malloc ERR in ft_init_philo!", inst);
 	while (i < inst->philo_amt)
 	{
 		inst->philo[i].meals_to_win = inst->fed_philos;
+		inst->philo[i].inst = inst;
 		inst->philo[i].name = i + 1;
 		i++;
 	}
@@ -84,5 +85,6 @@ void ft_init(t_inst *inst, int amt, char* params[])
 	ft_init_forks(inst);
 	ft_init_philosophers(inst);
 	inst->is_dead = 0;
+	pthread_mutex_init(&inst->print, NULL);
 	inst->start_ts = ft_get_ts();
 }

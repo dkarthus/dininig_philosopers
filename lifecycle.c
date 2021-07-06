@@ -9,14 +9,13 @@ void ft_eat(t_philo *philo)
 
 	id = philo->name;
 	pthread_mutex_lock(&philo->inst->fork[id - 1]);
-	printf("%u %u has taken a fork\n", ft_get_ts() - philo->inst->start_ts,
-		id);
+	ft_print_status(id, " has taken a fork\n", philo->inst);
 	if (id == philo->inst->philo_amt)
 		pthread_mutex_lock(&philo->inst->fork[0]);
 	else
 		pthread_mutex_lock(&philo->inst->fork[id]);
-	printf("%u %u has taken a fork\n", ft_get_ts() - philo->inst->start_ts,
-		id);
+	ft_print_status(id, " has taken a fork\n", philo->inst);
+	ft_print_status(id, " is eating\n", philo->inst);
 	usleep(philo->inst->t2_eat * 1000);
 	pthread_mutex_unlock(&philo->inst->fork[id - 1]);
 	pthread_mutex_unlock(&philo->inst->fork[id]);
@@ -27,9 +26,7 @@ void ft_eat(t_philo *philo)
  */
 void ft_sleep_think(t_philo *philo)
 {
-	printf("%u %u \n is sleeping", ft_get_ts() - philo->inst->start_ts,
-		philo->name);
+	ft_print_status(philo->name, " is sleeping\n", philo->inst);
 	usleep(philo->inst->t2_sleep);
-	printf("%u %u \n is thinking", ft_get_ts() - philo->inst->start_ts,
-		philo->name);
+	ft_print_status(philo->name, " is thinking\n", philo->inst);
 }

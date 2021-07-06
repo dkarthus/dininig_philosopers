@@ -52,3 +52,23 @@ unsigned int ft_get_ts(void)
 	gettimeofday(&tv, NULL);
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
+
+/*
+ * Print messages
+ */
+void ft_print_status(unsigned int id, const char *status, t_inst *inst)
+{
+	unsigned int len;
+	unsigned int ts;
+
+	len = 0;
+	while(status[len])
+		len++;
+	ts = ft_get_ts() - inst->start_ts;
+	pthread_mutex_lock(&inst->print);
+	ft_putnbr(ts);
+	write(1, "\t", 1);
+	ft_putnbr(id);
+	write(1, status, len);
+	pthread_mutex_unlock(&inst->print);
+}

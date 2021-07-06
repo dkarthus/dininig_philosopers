@@ -4,7 +4,7 @@ FLAG = -Wall -Werror -Wextra
 
 LIB = -lpthread
 
-SRC = main.c exit.c init.c lifecycle.c utils.c
+SRC = main.c exit.c init.c lifecycle.c utils.c utils2.c
 
 OBJ = $(SRC:%.c=%.o)
 
@@ -17,7 +17,7 @@ B_OBJ = $(B_SRC:%.c=%.o)
 all: $(NAME)
 
 $(NAME): $(OBJ) philosophers.h
-	gcc $(FLAG) $(OBJ) $(LIB) -o $(NAME)
+	gcc $(FLAG) $(OBJ) -o $(NAME) $(LIB)
 
 %.o: %.c
 	gcc $(FLAG) -c $< -o $@
