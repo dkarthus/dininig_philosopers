@@ -1,18 +1,47 @@
 #include "philosophers.h"
 
-
-void	ft_putnbr(unsigned int n)
+/*
+ *	Get timestamp(ts) in miliseconds
+ */
+unsigned int	ft_get_ts(void)
 {
-	char ch;
+	struct timeval	tv;
 
-	if (n < 10)
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+/*
+ *	Substitute for usleep()
+ */
+void	ft_usleep(unsigned int t2sleep)
+{
+	unsigned int	stop;
+
+	stop = ft_get_ts() + t2sleep;
+	while (ft_get_ts() < stop)
+		usleep(50);
+}
+
+/*
+ * Print messages
+ */
+void	ft_print_status(const char *status, t_philo *philo)
+{
+	unsigned int	len;
+	unsigned int	ts;
+
+	len = 0;
+	while (status[len])
+		len++;
+	ts = ft_get_ts() - philo->inst->start_ts;
+	pthread_mutex_lock(&philo->inst->print);
+	if (!philo->inst->is_dead_full)
 	{
-		ch = n + '0';
-		write(1, &ch, 1);
+		ft_putnbr(ts);
+		write(1, "\t", 1);
+		ft_putnbr(philo->name);
+		write(1, status, len);
 	}
-	else
-	{
-		ft_putnbr(n / 10);
-		ft_putnbr(n % 10);
-	}
+	pthread_mutex_unlock(&philo->inst->print);
 }

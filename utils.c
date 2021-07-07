@@ -14,7 +14,7 @@ int	ft_isdigit(int c)
 static int	ft_isspace(char c)
 {
 	return (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\f' || c
-																			== '\r');
+		== '\r');
 }
 
 long	ft_atoi(const char *str)
@@ -43,32 +43,20 @@ long	ft_atoi(const char *str)
 }
 
 /*
- *	Get timestamp(ts) in miliseconds 
+ * Put number to stdout
  */
-unsigned int ft_get_ts(void)
+void	ft_putnbr(unsigned int n)
 {
-	struct timeval	tv;
+	char	ch;
 
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
-}
-
-/*
- * Print messages
- */
-void ft_print_status(unsigned int id, const char *status, t_inst *inst)
-{
-	unsigned int len;
-	unsigned int ts;
-
-	len = 0;
-	while(status[len])
-		len++;
-	ts = ft_get_ts() - inst->start_ts;
-	pthread_mutex_lock(&inst->print);
-	ft_putnbr(ts);
-	write(1, "\t", 1);
-	ft_putnbr(id);
-	write(1, status, len);
-	pthread_mutex_unlock(&inst->print);
+	if (n < 10)
+	{
+		ch = n + '0';
+		write(1, &ch, 1);
+	}
+	else
+	{
+		ft_putnbr(n / 10);
+		ft_putnbr(n % 10);
+	}
 }

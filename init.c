@@ -3,10 +3,10 @@
 /*
  *	Func for checking params
  */
-static void ft_validity_check(int amt, char *params[])
+static void	ft_validity_check(int amt, char *params[])
 {
-	int i;
-	int j;
+	int	i;
+	int	j;
 
 	i = 1;
 	while (i < amt)
@@ -25,13 +25,13 @@ static void ft_validity_check(int amt, char *params[])
 /*
  * 	Func for forks init
  */
-static void ft_init_forks(t_inst *inst)
+static void	ft_init_forks(t_inst *inst)
 {
 	unsigned int	i;
 
 	i = 0;
-	inst->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) *
-			inst->philo_amt);
+	inst->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
+			* inst->philo_amt);
 	if (!inst->fork)
 		ft_exit("Malloc ERR in ft_init_fork!", NULL);
 	while (i < inst->philo_amt)
@@ -48,6 +48,7 @@ static void ft_init_forks(t_inst *inst)
 static void	ft_init_philosophers(t_inst *inst)
 {
 	unsigned int	i;
+
 	i = 0;
 	inst->philo = (t_philo *)malloc(sizeof(t_philo) * inst->philo_amt);
 	if (!inst->philo)
@@ -57,6 +58,7 @@ static void	ft_init_philosophers(t_inst *inst)
 		inst->philo[i].meals_to_win = inst->fed_philos;
 		inst->philo[i].inst = inst;
 		inst->philo[i].name = i + 1;
+		inst->philo[i].will_die_ts = ft_get_ts() + inst->t2_die;
 		i++;
 	}
 	inst->fed_philos = 0;
@@ -65,14 +67,14 @@ static void	ft_init_philosophers(t_inst *inst)
 /*
  * Func for init main struct
  */
-void ft_init(t_inst *inst, int amt, char* params[])
+void	ft_init(t_inst *inst, int amt, char *params[])
 {
 	ft_validity_check(amt, params);
 	inst->philo_amt = ft_atoi(params[1]);
 	inst->t2_die = ft_atoi(params[2]);
 	inst->t2_eat = ft_atoi(params[3]);
 	inst->t2_sleep = ft_atoi(params[4]);
-	if (inst->philo_amt < 2 || inst->t2_die < 1)
+	if (inst->philo_amt < 1 || inst->t2_die < 1)
 		ft_exit("Wrong ARGS value!", NULL);
 	if (amt == 6)
 	{
@@ -84,7 +86,9 @@ void ft_init(t_inst *inst, int amt, char* params[])
 		inst->fed_philos = 0;
 	ft_init_forks(inst);
 	ft_init_philosophers(inst);
-	inst->is_dead = 0;
+	inst->is_dead_full = 0;
 	pthread_mutex_init(&inst->print, NULL);
-	inst->start_ts = ft_get_ts();
+	pthread_mutex_init(&inst->finito, NULL);
+	pthread_mutex_init(&inst->full_philo, NULL);
+	pthread_mutex_lock(&inst->finito);
 }
