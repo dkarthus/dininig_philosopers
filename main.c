@@ -1,5 +1,8 @@
 #include "philosophers.h"
 
+/*
+ * Main func, take in parametrs of simulation and starts all the funcs
+ */
 int	main(int argc, char *argv[])
 {
 	t_inst	*inst;
@@ -7,7 +10,7 @@ int	main(int argc, char *argv[])
 	inst = (t_inst *)malloc(sizeof(t_inst));
 	if (argc < 5 || argc > 6)
 		ft_exit("Wrong ARGS", NULL);
-	ft_init(inst, argc, argv);
+	ft_init_values(inst, argc, argv);
 	ft_start_sim(inst);
 	pthread_mutex_lock(&inst->finito);
 	pthread_mutex_unlock(&inst->finito);

@@ -1,11 +1,16 @@
-#ifndef PHILOSOPHERS_H
-# define PHILOSOPHERS_H
+#ifndef PHILOSOPHERS_BONUS_H
+# define PHILOSOPHERS_BONUS_H
 
-# include <stdio.h>
-# include <stdlib.h>
 # include <unistd.h>
-# include <pthread.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <sys/stat.h>
 # include <sys/time.h>
+# include <pthread.h>
+# include <stdlib.h>
+# include <semaphore.h>
+# include <signal.h>
+# include <errno.h>
 
 struct	s_instance;
 
@@ -25,20 +30,27 @@ typedef struct s_instance
 	unsigned int	t2_eat;
 	unsigned int	t2_sleep;
 	unsigned int	t2_die;
+	unsigned int	*pids;
 	int				is_dead_full;
-	pthread_mutex_t	finito;
-	pthread_mutex_t	print;
+	sem_t			*forks;
+	sem_t			*finito;
+	sem_t			*fed;
+	sem_t			*print;
 	pthread_mutex_t	full_philo;
-	pthread_mutex_t	*fork;
 	t_philo			*philo;
 }				t_inst;
 
 /*
- * Philosopher lifecycle
+ * Start philosophers lifecycle
  */
 void			ft_start_sim(t_inst *inst);
-void			ft_eat(t_philo *philo);
-void			ft_sleep_think(t_philo *philo);
+void			ft_philo_as_process(t_philo *philo);
+
+/*
+ * Routine funcs for threads
+ */
+void			*ft_fed_check(void *inst);
+void			*ft_grim_reaper(void *philo);
 
 /*
  * Utils
@@ -49,7 +61,17 @@ long			ft_atoi(const char *str);
 void			ft_putnbr(unsigned int n);
 int				ft_isdigit(int c);
 unsigned int	ft_get_ts(void);
-void			ft_exit(const char *str, t_inst *inst);
+
+/*
+ * Init funcs
+ */
 void			ft_init_values(t_inst *inst, int amt, char **params);
+void			ft_init_sems(t_inst *inst);
+
+/*
+ * Clean & exit
+ */
+void			ft_kill_pids(t_inst *inst);
+void			ft_exit(const char *str, t_inst *inst);
 
 #endif

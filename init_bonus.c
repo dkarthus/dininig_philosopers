@@ -1,4 +1,4 @@
-#include "philosophers.h"
+#include "philosophers_bonus.h"
 
 /*
  *	Func for checking params
@@ -22,25 +22,31 @@ static void	ft_validity_check(int amt, char *params[])
 	}
 }
 
+
 /*
- * 	Func for forks init
+ *	func for initing semaphores
  */
-static void	ft_init_forks(t_inst *inst)
+void	ft_init_sems(t_inst *inst)
 {
 	unsigned int	i;
 
 	i = 0;
-	inst->fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t)
-			* inst->philo_amt);
-	if (!inst->fork)
-		ft_exit("Malloc ERR in ft_init_fork!", NULL);
-	while (i < inst->philo_amt)
-	{
-		if (pthread_mutex_init(&inst->fork[i], NULL))
-			ft_exit("Mutex_init ERR in ft_init_forks!", inst);
-		i++;
-	}
+	sem_unlink("/fin");
+	sem_unlink("/fed");
+	sem_unlink("/print");
+	sem_unlink("/forks");
+	inst->finito = sem_open("/fin", O_CREAT | O_EXCL, 0777, 1);
+	inst->fed = sem_open("/fed", O_CREAT | O_EXCL, 0777, inst->philo_amt);
+	inst->print = sem_open("/print", O_CREAT | O_EXCL, 0777, 1);
+	inst->forks = sem_open("/forks", O_CREAT | O_EXCL, 0777, inst->philo_amt);
+	if (inst->finito == SEM_FAILED || inst->fed == SEM_FAILED || inst->print ==
+																 SEM_FAILED || inst->forks == SEM_FAILED)
+		ft_exit("SEM FAILED in main", inst);
+	sem_wait(inst->finito);
+	while (i++ < inst->philo_amt)
+		sem_wait(inst->fed);
 }
+
 
 /*
  *	Func inits philosophers
@@ -74,6 +80,9 @@ void	ft_init_values(t_inst *inst, int amt, char **params)
 	inst->t2_die = ft_atoi(params[2]);
 	inst->t2_eat = ft_atoi(params[3]);
 	inst->t2_sleep = ft_atoi(params[4]);
+	inst->pids = malloc(sizeof(unsigned int) * inst->philo_amt);
+	if (!inst->pids)
+		ft_exit("Malloc err in ft_init", NULL);
 	if (inst->philo_amt < 1 || inst->t2_die < 1)
 		ft_exit("Wrong ARGS value!", NULL);
 	if (amt == 6)
@@ -84,11 +93,6 @@ void	ft_init_values(t_inst *inst, int amt, char **params)
 	}
 	else
 		inst->fed_philos = 0;
-	ft_init_forks(inst);
 	ft_init_philosophers(inst);
 	inst->is_dead_full = 0;
-	pthread_mutex_init(&inst->print, NULL);
-	pthread_mutex_init(&inst->finito, NULL);
-	pthread_mutex_init(&inst->full_philo, NULL);
-	pthread_mutex_lock(&inst->finito);
 }
