@@ -26,7 +26,6 @@ typedef struct s_instance
 	unsigned int	t2_sleep;
 	unsigned int	t2_die;
 	int				is_dead_full;
-	pthread_mutex_t	finito;
 	pthread_mutex_t	print;
 	pthread_mutex_t	full_philo;
 	pthread_mutex_t	*fork;
@@ -36,9 +35,15 @@ typedef struct s_instance
 /*
  * Philosopher lifecycle
  */
-void			ft_start_sim(t_inst *inst);
+int				ft_start_sim(t_inst *inst);
 void			ft_eat(t_philo *philo);
 void			ft_sleep_think(t_philo *philo);
+
+/*
+ * Routines
+ */
+void			*routine(void *philosopher);
+void			*ft_grim_reaper(void *instance);
 
 /*
  * Utils
@@ -49,7 +54,7 @@ long			ft_atoi(const char *str);
 void			ft_putnbr(unsigned int n);
 int				ft_isdigit(int c);
 unsigned int	ft_get_ts(void);
-void			ft_exit(const char *str, t_inst *inst);
-void			ft_init_values(t_inst *inst, int amt, char **params);
+int				ft_exit(const char *str, t_inst *inst, int status);
+int				ft_init_values(t_inst *inst, int amt, char **params);
 
 #endif

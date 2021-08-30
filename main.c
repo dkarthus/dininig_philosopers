@@ -9,76 +9,40 @@ int	main(int argc, char *argv[])
 
 	inst = (t_inst *)malloc(sizeof(t_inst));
 	if (argc < 5 || argc > 6)
-		ft_exit("Wrong ARGS", NULL);
-	ft_init_values(inst, argc, argv);
-	ft_start_sim(inst);
-	pthread_mutex_lock(&inst->finito);
-	pthread_mutex_unlock(&inst->finito);
-	ft_exit(NULL, inst);
-}
-
-/*
- * Routine for philosophers lifecycle (eat, sleep, think, die)
- */
-static void	*routine(void *philosopher)
-{
-	t_philo	*phil;
-
-	phil = (t_philo *)philosopher;
-	while (!phil->inst->is_dead_full)
-	{
-		ft_eat((t_philo *)philosopher);
-		ft_sleep_think((t_philo *)philosopher);
-	}
-	return (NULL);
-}
-
-/*
- *Func kills hungry philo and finishes simulation
- */
-static void	*ft_grim_reaper(void *instance)
-{
-	t_inst			*inst;
-	unsigned int	i;
-
-	inst = (t_inst *)instance;
-	while (!inst->is_dead_full)
-	{
-		i = 0;
-		while (i < inst->philo_amt)
-		{
-			if (ft_get_ts() >= inst->philo[i].will_die_ts)
-			{
-				pthread_mutex_lock(&inst->print);
-				if (!inst->is_dead_full)
-					printf("%u\t%u died\n",
-						inst->philo[i].will_die_ts - inst->start_ts, i + 1);
-				inst->is_dead_full = 1;
-				pthread_mutex_unlock(&inst->print);
-				pthread_mutex_unlock(&inst->finito);
-			}
-			i++;
-		}
-		usleep(10000);
-	}
-	return (NULL);
+		return (ft_exit("Wrong ARGS", NULL, 1));
+	if (ft_init_values(inst, argc, argv))
+		return (1);
+	if (ft_start_sim(inst))
+		return (ft_exit("ft_start_sim err", inst, 1));
+	return (ft_exit(NULL, inst, 0));
 }
 
 /*
  * Simulation start func
  */
-void	ft_start_sim(t_inst *inst)
+int	ft_start_sim(t_inst *inst)
 {
 	unsigned int	i;
-	pthread_t		tid;
+	pthread_t		*tid;
 
 	i = 0;
+	tid = malloc(sizeof(pthread_t) * (inst->philo_amt + 1));
+	if (!tid)
+		return (ft_exit("Malloc err ft_start_sim", inst, 1));
 	inst->start_ts = ft_get_ts();
 	while (i < inst->philo_amt)
 	{
-		pthread_create(&tid, NULL, &routine, (void *)&inst->philo[i]);
+		if (pthread_create(&tid[i], NULL, &routine, (void *)&inst->philo[i]))
+			return (1);
 		i++;
-		usleep(100);
+		usleep(50);
 	}
-	pthread_create(&tid, NULL, &ft_grim_reaper, (void *)inst);
+	if (pthread_create(&tid[inst->philo_amt], NULL, &ft_grim_reaper, (void *)
+			inst))
+		return (1);
+	pthread_detach(tid[inst->philo_amt]);
+	while (i > 0)
+		pthread_join(tid[--i], NULL);
+	free(tid);
+	return (0);
 }

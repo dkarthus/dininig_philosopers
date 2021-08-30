@@ -1,6 +1,20 @@
 #include "philosophers_bonus.h"
 
 /*
+ * Sets on killer switch for current philo
+ */
+void	*ft_scythe(void *philo)
+{
+	t_philo			*ph;
+
+	ph = (t_philo *)philo;
+	sem_wait(ph->inst->finito);
+	ph->inst->is_dead_full = 1;
+	sem_post(ph->inst->finito);
+	return (NULL);
+}
+
+/*
  *Func kills hungry philo and finishes simulation
  */
 void	*ft_grim_reaper(void *philo)
@@ -13,9 +27,14 @@ void	*ft_grim_reaper(void *philo)
 		if (ft_get_ts() >= ph->will_die_ts)
 		{
 			sem_wait(ph->inst->print);
-			printf("%u\t%u died\n", ph->will_die_ts - ph->inst->start_ts, ph->name);
+			if (ph->inst->is_dead_full == 0)
+				printf("%u\t%u died\n", ph->will_die_ts - ph->inst->start_ts,
+					ph->name);
 			ph->inst->is_dead_full = 1;
 			sem_post(ph->inst->finito);
+			usleep(100);
+			sem_post(ph->inst->print);
+			kill(ph->inst->fed_pid, SIGKILL);
 		}
 		usleep(10000);
 	}
@@ -25,21 +44,21 @@ void	*ft_grim_reaper(void *philo)
 /*
  * Check if all philos are well fed
  */
-void *ft_fed_check(void *inst)
+unsigned int	ft_fed_check(t_inst *inst)
 {
 	unsigned int	i;
-	t_inst			*in;
+	unsigned int	pid;
 
-	in = (t_inst *)inst;
+	pid = fork();
+	if (pid)
+		return (pid);
 	i = 0;
-	while (i < in->philo_amt)
+	while (i < inst->philo_amt)
 	{
-		sem_wait(in->fed);
+		sem_wait(inst->fed);
 		i++;
 	}
-	sem_wait(in->print);
-	printf("ALL PHILOSOPHERS ARE WELL FED\n");
-	in->is_dead_full = 2;
-	sem_post(in->finito);
-	return (NULL);
+	sem_wait(inst->print);
+	sem_post(inst->finito);
+	exit(0);
 }

@@ -20,7 +20,7 @@ void	ft_usleep(unsigned int t2sleep)
 
 	stop = ft_get_ts() + t2sleep;
 	while (ft_get_ts() < stop)
-		usleep(50);
+		usleep(30);
 }
 
 /*
@@ -35,13 +35,13 @@ void	ft_print_status(const char *status, t_philo *philo)
 	while (status[len])
 		len++;
 	ts = ft_get_ts() - philo->inst->start_ts;
-	pthread_mutex_lock(&philo->inst->print);
 	if (!philo->inst->is_dead_full)
 	{
+		pthread_mutex_lock(&philo->inst->print);
 		ft_putnbr(ts);
 		write(1, "\t", 1);
 		ft_putnbr(philo->name);
 		write(1, status, len);
+		pthread_mutex_unlock(&philo->inst->print);
 	}
-	pthread_mutex_unlock(&philo->inst->print);
 }

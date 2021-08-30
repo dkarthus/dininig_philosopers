@@ -22,7 +22,6 @@ static void	ft_validity_check(int amt, char *params[])
 	}
 }
 
-
 /*
  *	func for initing semaphores
  */
@@ -30,23 +29,27 @@ void	ft_init_sems(t_inst *inst)
 {
 	unsigned int	i;
 
-	i = 0;
 	sem_unlink("/fin");
 	sem_unlink("/fed");
 	sem_unlink("/print");
 	sem_unlink("/forks");
+	sem_unlink("/sync");
 	inst->finito = sem_open("/fin", O_CREAT | O_EXCL, 0777, 1);
 	inst->fed = sem_open("/fed", O_CREAT | O_EXCL, 0777, inst->philo_amt);
 	inst->print = sem_open("/print", O_CREAT | O_EXCL, 0777, 1);
 	inst->forks = sem_open("/forks", O_CREAT | O_EXCL, 0777, inst->philo_amt);
-	if (inst->finito == SEM_FAILED || inst->fed == SEM_FAILED || inst->print ==
-																 SEM_FAILED || inst->forks == SEM_FAILED)
+	inst->sync = sem_open("/sync", O_CREAT | O_EXCL, 0777, inst->philo_amt);
+	if (inst->finito == SEM_FAILED || inst->fed == SEM_FAILED || inst->print
+		== SEM_FAILED || inst->forks == SEM_FAILED)
 		ft_exit("SEM FAILED in main", inst);
 	sem_wait(inst->finito);
+	i = 0;
 	while (i++ < inst->philo_amt)
 		sem_wait(inst->fed);
+	i = 0;
+	while (i++ < inst->philo_amt)
+		sem_wait(inst->sync);
 }
-
 
 /*
  *	Func inits philosophers

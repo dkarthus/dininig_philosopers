@@ -14,7 +14,7 @@ int	ft_isdigit(int c)
 static int	ft_isspace(char c)
 {
 	return (c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\f' || c
-																			== '\r');
+		== '\r');
 }
 
 long	ft_atoi(const char *str)

@@ -7,12 +7,14 @@ static void	ft_tummy_check(t_philo *philo)
 	pthread_mutex_lock(&philo->inst->full_philo);
 	if (philo->inst->fed_philos + 1 == philo->inst->philo_amt)
 	{
-		pthread_mutex_lock(&philo->inst->print);
-		philo->inst->is_dead_full = 1;
-		printf("WELLDONE, ALL PHILOSOPERS ARE WELL FED\n");
-		pthread_mutex_unlock(&philo->inst->print);
-		usleep(100);
-		pthread_mutex_unlock(&philo->inst->finito);
+		if (!philo->inst->is_dead_full)
+		{
+			pthread_mutex_lock(&philo->inst->print);
+			philo->inst->is_dead_full = 1;
+			printf("WELLDONE, ALL PHILOSOPERS ARE WELL FED\n");
+			usleep(10000);
+			pthread_mutex_unlock(&philo->inst->print);
+		}
 	}
 	else
 		philo->inst->fed_philos++;
@@ -81,8 +83,8 @@ static void	ft_put_forks(t_philo *philo)
 void	ft_eat(t_philo *philo)
 {
 	ft_take_forks(philo);
-	ft_print_status(" is eating\n", philo);
 	philo->will_die_ts = ft_get_ts() + philo->inst->t2_die;
+	ft_print_status(" is eating\n", philo);
 	ft_usleep(philo->inst->t2_eat);
 	philo->meals_to_win--;
 	if (philo->meals_to_win == 0)

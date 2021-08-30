@@ -4,6 +4,8 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <fcntl.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 # include <sys/stat.h>
 # include <sys/time.h>
 # include <pthread.h>
@@ -31,11 +33,13 @@ typedef struct s_instance
 	unsigned int	t2_sleep;
 	unsigned int	t2_die;
 	unsigned int	*pids;
+	unsigned int	fed_pid;
 	int				is_dead_full;
 	sem_t			*forks;
 	sem_t			*finito;
 	sem_t			*fed;
 	sem_t			*print;
+	sem_t			*sync;
 	pthread_mutex_t	full_philo;
 	t_philo			*philo;
 }				t_inst;
@@ -47,10 +51,11 @@ void			ft_start_sim(t_inst *inst);
 void			ft_philo_as_process(t_philo *philo);
 
 /*
- * Routine funcs for threads
+ * Routines
  */
-void			*ft_fed_check(void *inst);
+unsigned int	ft_fed_check(t_inst *inst);
 void			*ft_grim_reaper(void *philo);
+void			*ft_scythe(void *philo);
 
 /*
  * Utils

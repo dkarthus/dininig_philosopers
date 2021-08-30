@@ -3,7 +3,7 @@
 /*
  * Exit func with err str and main inst as args
  */
-void	ft_exit(const char *str, t_inst *inst)
+int	ft_exit(const char *str, t_inst *inst, int status)
 {
 	if (str)
 		printf("%s\n", str);
@@ -17,13 +17,13 @@ void	ft_exit(const char *str, t_inst *inst)
 			pthread_mutex_destroy(&inst->fork[inst->philo_amt - 1]);
 			inst->philo_amt--;
 		}
-		pthread_mutex_unlock(&inst->finito);
-		pthread_mutex_destroy(&inst->finito);
+		if (inst->fork)
+			free(inst->fork);
 		pthread_mutex_unlock(&inst->print);
 		pthread_mutex_destroy(&inst->print);
 		pthread_mutex_unlock(&inst->full_philo);
 		pthread_mutex_destroy(&inst->full_philo);
 		free(inst);
 	}
-	exit(0);
+	return (status);
 }
